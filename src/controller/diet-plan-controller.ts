@@ -2,17 +2,15 @@ import { Request, Response } from "express";
 import { dietPlanSchema } from "@/schema/diet-plan";
 import { z } from "zod";
 import { generateDietPlan } from "@/agent";
+import { setupSSE } from "@/utils/setupSSE";
 
 class DietPlanController {
   public async handle(req: Request, res: Response) {
     try {
       const bodySchema = dietPlanSchema.parse(req.body);
 
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-
-      res.flushHeaders();
+      // 2. Só configura os headers DEPOIS que o Zod aprovar os dados
+      setupSSE(res);
 
       const stream = generateDietPlan(bodySchema);
 
